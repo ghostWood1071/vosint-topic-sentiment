@@ -1,0 +1,25 @@
+version: '3.6'
+services:
+    vosint-sentiment:
+        image: vienai/vosint-sentiment:1.0.0
+        ports: 
+            - 6512:1510        
+        deploy:
+            restart_policy:
+                condition: on-failure
+            replicas: 1
+            placement:
+                constraints: 
+                    - node.hostname==ds1-C246-WU4     
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]    
+        networks:
+            - vosint3_system_network
+
+networks: 
+  vosint3_system_network:
+    external: true

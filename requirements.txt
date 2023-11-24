@@ -1,0 +1,7 @@
+gdown==4.6.2
+nltk==3.8.1
+torch==1.13.1
+transformers==4.27.4
+fastapi
+uvicorn
+Jinja2

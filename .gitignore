@@ -7,6 +7,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+files_upload/train.json
+files_upload/test.json
+
 # C extensions
 *.so
 
@@ -19,6 +22,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+bin/
 lib64/
 parts/
 sdist/
@@ -131,7 +135,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-v_osint_topic_sentiment/models/
+v_osint_topic_sentiment/models/best_model.pt
 
 # Spyder project settings
 .spyderproject

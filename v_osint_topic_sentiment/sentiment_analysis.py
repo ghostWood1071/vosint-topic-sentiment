@@ -23,6 +23,7 @@ script_path = os.path.abspath(sys.argv[0])
 running_path = os.path.dirname(script_path)
 
 MODEL_PATH = os.path.join(running_path, "v_osint_topic_sentiment/models/bert_best_model.pt")
+CURRENT_MODEL = "bert_best_model.pt"
 BERT_NAME ="NlpHUST/vibert4news-base-cased"
 MAX_SENT_LENGTH = 50
 MAX_WORD_LENGTH = 100
@@ -36,15 +37,14 @@ LABEL_MAPPING = {
 bert_tokenizer = BertTokenizer.from_pretrained(BERT_NAME)
 bert_model = BertModel.from_pretrained(BERT_NAME)
 sentiment_model = BertClassifier(bert_model,num_classes=3)
-print (MODEL_PATH)
 sentiment_model.load_state_dict(torch.load(MODEL_PATH,map_location=device))
 sentiment_model.eval()
 
-def topic_sentiment_classification(title="",description="",content=""):
+def topic_sentiment_classification(title="",description="",content="", model=sentiment_model, tokenizer=bert_tokenizer):
     text = title+'\n'+description+'\n'+content
     with torch.no_grad():           
-        sentences_ids ,sentences_mask, num_sent = preprocess(bert_tokenizer,text,MAX_WORD_LENGTH, MAX_SENT_LENGTH)
-        logits = sentiment_model(sentences_ids,sentences_mask,num_sent)
+        sentences_ids ,sentences_mask, num_sent = preprocess(tokenizer,text,MAX_WORD_LENGTH, MAX_SENT_LENGTH)
+        logits = model(sentences_ids,sentences_mask,num_sent)
         logits = logits.cpu().detach().numpy()[0]
     index_pred = np.argmax(logits, -1)
     label_pred = LABEL_MAPPING[index_pred]
@@ -53,6 +53,16 @@ def topic_sentiment_classification(title="",description="",content=""):
     result['topic_label'] = "unknow"
     return result
 
+def change_model(model_name):
+    try:
+        global sentiment_model, CURRENT_MODEL
+        sentiment_model.load_state_dict(torch.load(os.path.join("v_osint_topic_sentiment/models",model_name),map_location=device))
+        sentiment_model.eval()
+        CURRENT_MODEL = model_name
+        return "succes"
+    except:
+        return "error when change model"
+    
 if __name__ == "__main__":
     text = """Người đứng đầu Bộ Quốc phòng tuyên bố rằng một thoả thuận hợp tác về mua sắm quốc phòng sẽ được ký với Bộ trưởng Quốc phòng Hoa Kỳ Lloyd Austin trong cuộc họp của họ vào thứ Sáu."""
     predict_out = topic_sentiment_classification(text)
